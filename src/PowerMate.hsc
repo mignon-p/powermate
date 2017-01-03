@@ -20,9 +20,8 @@ import System.Posix.Types (Fd (..))
 import System.Posix.IO
 -- and then System.IO for everything else.
 import System.IO
-import System.Environment
-import Data.List (isPrefixOf, find)
-import Control.Monad (filterM, liftM)
+import Data.List (isPrefixOf)
+import Control.Monad (filterM)
 import Control.Exception (bracket)
 import System.Directory (getDirectoryContents)
 import Foreign.C.String (withCAString, peekCString)
@@ -39,6 +38,7 @@ data Status = Status {
   pulse_asleep, pulse_awake :: Bool
 } deriving (Eq, Ord, Show, Read)
 
+statusInit :: Status
 statusInit = Status 0 0 0 False False
 
 ioctlName :: Fd -> IO String
@@ -88,6 +88,7 @@ decodeEvent (#{const EV_MSC}, _, value) = Just $ StatusChange (decodePulseLED va
 decodeEvent (0, 0, 0) = Nothing  -- where do these come from?
 decodeEvent (typ, code, value) = trace ("Unhandled event: " ++ show typ ++ "," ++ show code ++ "," ++ show value) Nothing
 
+eventSize :: Int
 eventSize = #{size struct input_event}
 
 readEvent :: Handle -> IO (Maybe Event)
@@ -139,9 +140,11 @@ decodePulseLED word = Status { brightness=b, pulse_speed=ps, pulse_mode=pm,
   pas = Data.Bits.testBit word 19
   paw = Data.Bits.testBit word 20
 
+{-
 showBinary :: Word32 -> String
 showBinary word = concatMap showBit [31,30..0] where
   showBit n = if Data.Bits.testBit word n then "1" else "0"
+-}
 
 writeStatus :: Handle -> Status -> IO ()
 writeStatus handle status = writeEvent handle typ code value where

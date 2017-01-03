@@ -14,14 +14,16 @@ import qualified Network
 import System.IO
 import System.IO.Error
 import Data.List
-import System.Posix
+-- import System.Posix
 
 -- for ReconnectableConnection
 import Data.IORef
 
 type Connection = Handle
 
+{-
 ignoreSIGPIPE = installHandler sigPIPE Ignore Nothing
+-}
 
 connect :: (String, Int) -> IO Connection
 connect (host, port) = do
@@ -31,6 +33,7 @@ connect (host, port) = do
   putStrLn welcome
   return handle
 
+runCommand :: Handle -> String -> IO [String]
 runCommand conn cmd = do
   hPutStrLn conn cmd
   lines <- getResponseLines []
@@ -42,6 +45,7 @@ runCommand conn cmd = do
         then return ls
         else getResponseLines (line:ls)
 
+runCommand_ :: Handle -> String -> IO ()
 runCommand_ conn cmd = runCommand conn cmd >> return ()
 
 getVolume :: Connection -> IO Int
