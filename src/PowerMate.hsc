@@ -1,6 +1,20 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
--- PowerMate bindings for Haskell.
--- Copyright (C) 2006 Evan Martin <martine@danga.com>
+
+{-|
+Module      : PowerMate
+Description : PowerMate bindings for Haskell.
+Copyright   : (C) 2006 Evan Martin <martine@danga.com>,
+              (C) 2017 Patrick Pelletier <code@funwithsoftware.org>
+License     : BSD3
+Maintainer  : Patrick Pelletier <code@funwithsoftware.org>
+Stability   : experimental
+Portability : Linux
+
+This module is for interfacing the Griffin PowerMate USB (a
+big silver knob you can turn and click) with Haskell.  You can
+read events from the PowerMate, and control the brightness,
+pulse speed, and pulse waveform of the built-in blue LED.
+-}
 
 module PowerMate (
   getUSBName,
@@ -33,11 +47,17 @@ import Data.Bits (testBit)
 foreign import ccall "sys/ioctl.h ioctl" ioctlChar ::
   CInt -> CInt -> Ptr CChar -> IO CInt
 
+-- | Represents the status of the blue LED.
 data Status = Status {
-  brightness, pulse_speed, pulse_mode :: Int,
-  pulse_asleep, pulse_awake :: Bool
+  brightness :: Int,    -- ^ Range: 0-255.  0 = off, 255 = max
+  pulse_speed :: Int,   -- ^ Range: 0-510.  0 = slowest, 255 = typical, 510 = fastest
+  pulse_mode :: Int,    -- ^ Range: 0-2.  Each possible value is a different shape of pulse
+  pulse_asleep :: Bool, -- ^ Not sure.
+  pulse_awake :: Bool   -- ^ Should the LED pulse or be constant?
 } deriving (Eq, Ord, Show, Read)
 
+-- | A 'Status' initialized to default values.
+--   (Specifically, all zero.)
 statusInit :: Status
 statusInit = Status 0 0 0 False False
 
@@ -47,10 +67,14 @@ ioctlName (Fd fd) = do
     throwErrnoIf (< 0) "ioctl" $ ioctlChar fd #{const EVIOCGNAME(255)} buf
     peekCString buf
 
+-- | Given the name of a device file, return the name of the USB
+--   device associated with it.
 getUSBName :: FilePath -> IO String
 getUSBName filename = do
   bracket (openFd filename ReadOnly Nothing defaultFileFlags) closeFd ioctlName
 
+-- | Returns the name of the device file associated with the
+--   Griffin PowerMate USB, or 'Nothing' if no PowerMate can be found.
 searchForDevice :: IO (Maybe FilePath)
 searchForDevice = do
   files <- getDirectoryContents basedir
@@ -72,13 +96,18 @@ searchForDevice = do
         nameIsGood "Griffin PowerMate" = True
         nameIsGood _                   = False
 
+-- | Given the name of the device file for the PowerMate USB,
+--   opens it and returns a 'Handle' to it.
 openDevice :: FilePath -> IO Handle
 openDevice file = do
   handle <- openBinaryFile file ReadWriteMode
   hSetBuffering handle NoBuffering
   return handle
 
-data Event = Button Bool | Rotate Int | StatusChange Status
+-- | An event returned by the PowerMate USB.
+data Event = Button Bool          -- ^ True = press, False = release
+           | Rotate Int           -- ^ Positive is clockwise, negative is counterclockwise
+           | StatusChange Status  -- ^ When you change the LED status, it is echoed back to you for some reason
            deriving (Eq, Ord, Show, Read)
 
 decodeEvent :: (Word16, Word16, Word32) -> Maybe Event
@@ -91,6 +120,9 @@ decodeEvent (typ, code, value) = trace ("Unhandled event: " ++ show typ ++ "," +
 eventSize :: Int
 eventSize = #{size struct input_event}
 
+-- | Block until the PowerMate USB controller generates an event, and
+--   then return that event.  (Or, sometimes just returns 'Nothing',
+--   which you can ignore.)
 readEvent :: Handle -> IO (Maybe Event)
 readEvent handle = do
   allocaBytes eventSize $ \buf -> do
@@ -102,6 +134,7 @@ readEvent handle = do
     value <- #{peek struct input_event, value} buf :: IO Word32
     return $ decodeEvent (typ, code, value)
 
+-- | If multiple events are available, discard all but the last.
 readEventWithSkip :: Handle -> Maybe Event -> IO (Maybe Event)
 readEventWithSkip handle prev = do
   event <- readEvent handle
@@ -146,6 +179,7 @@ showBinary word = concatMap showBit [31,30..0] where
   showBit n = if Data.Bits.testBit word n then "1" else "0"
 -}
 
+-- | Control the blue LED on the PowerMate USB.
 writeStatus :: Handle -> Status -> IO ()
 writeStatus handle status = writeEvent handle typ code value where
   typ   = #{const EV_MSC}
