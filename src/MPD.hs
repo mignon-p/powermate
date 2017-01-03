@@ -12,6 +12,7 @@ module MPD (
 
 import qualified Network
 import System.IO
+import System.IO.Error
 import Data.List
 import System.Posix
 
@@ -57,7 +58,7 @@ setVolume conn v = runCommand_ conn ("setvol " ++ show v)
 
 withReconnect :: Connection -> (String, Int) -> (Connection -> IO a) -> IO (Connection, a)
 withReconnect conn addr func = do
-  do { ret <- func conn; return (conn, ret) } `catch` \e -> do
+  do { ret <- func conn; return (conn, ret) } `catchIOError` \e -> do
          -- print $ ioeGetErrorString e
          newconn <- MPD.connect addr
          ret <- func newconn

@@ -11,7 +11,7 @@ author:              Evan Martin
 maintainer:          Evan Martin <martine@danga.com>
 homepage:            http://neugierig.org/software/darcs/powermate/
 
-tested-with:         GHC==6.8.2
+tested-with:         GHC==7.6.3
 Cabal-Version:       >= 1.2
 build-type:          Simple
 extra-source-files:  src/PowerMate.hsc

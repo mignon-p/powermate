@@ -16,7 +16,7 @@ import Foreign
 import Foreign.C.Error (throwErrnoIf)
 import Foreign.C.Types
 -- ioctl wants an Fd, so we use System.Posix.IO for that,
-import System.Posix.Types (Fd)
+import System.Posix.Types (Fd (..))
 import System.Posix.IO
 -- and then System.IO for everything else.
 import System.IO
@@ -32,7 +32,7 @@ import Data.Bits (testBit)
 #include <linux/input.h>
 
 foreign import ccall "sys/ioctl.h ioctl" ioctlChar ::
-  Fd -> CInt -> Ptr CChar -> IO CInt
+  CInt -> CInt -> Ptr CChar -> IO CInt
 
 data Status = Status {
   brightness, pulse_speed, pulse_mode :: Int,
@@ -41,7 +41,7 @@ data Status = Status {
 statusInit = Status 0 0 0 False False
 
 ioctlName :: Fd -> IO String
-ioctlName fd = do
+ioctlName (Fd fd) = do
   withCAString (take 255 (repeat '\0')) $ \buf -> do
     throwErrnoIf (< 0) "ioctl" $ ioctlChar fd #{const EVIOCGNAME(255)} buf
     peekCString buf
