@@ -3,7 +3,7 @@ import System.IO
 
 import PowerMate
 
-updateLed :: Handle -> Int -> Int -> IO ()
+updateLed :: PowerMate -> Int -> Int -> IO ()
 updateLed h speed mode = writeStatus h status
   where status = statusInit
                  { brightness = 255
@@ -12,7 +12,7 @@ updateLed h speed mode = writeStatus h status
                  , pulse_awake = True
                  }
 
-handleEvent :: Handle -> Maybe Event -> Int -> Int -> IO (Int, Int)
+handleEvent :: PowerMate -> Maybe Event -> Int -> Int -> IO (Int, Int)
 handleEvent h (Just (Button True)) speed mode = do
   let mode' = (mode + 1) `mod` 3
   putStrLn $ "mode " ++ show mode'
@@ -25,7 +25,7 @@ handleEvent h (Just (Rotate r)) speed mode = do
   return (speed', mode)
 handleEvent _ _ speed mode = return (speed, mode)
 
-loop :: Handle -> Int -> Int -> IO ()
+loop :: PowerMate -> Int -> Int -> IO ()
 loop h speed mode = do
   e <- readEvent h
   (speed', mode') <- handleEvent h e speed mode

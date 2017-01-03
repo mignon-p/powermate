@@ -17,13 +17,15 @@ pulse speed, and pulse waveform of the built-in blue LED.
 -}
 
 module PowerMate (
+  PowerMate,
   getUSBName,
   searchForDevice, openDevice,
   readEvent, readEventWithSkip,
   Event(..),
 
   Status(..), statusInit,
-  writeStatus
+  writeStatus,
+  closeDevice
 ) where
 
 import Foreign
@@ -46,6 +48,11 @@ import Data.Bits (testBit)
 
 foreign import ccall "sys/ioctl.h ioctl" ioctlChar ::
   CInt -> CInt -> Ptr CChar -> IO CInt
+
+-- | Represents a PowerMate USB controller.
+data PowerMate =
+  PowerMate { readHandle :: Handle, writeHandle :: Handle }
+  deriving (Eq, Show)
 
 -- | Represents the status of the blue LED.
 data Status = Status {
@@ -97,12 +104,14 @@ searchForDevice = do
         nameIsGood _                   = False
 
 -- | Given the name of the device file for the PowerMate USB,
---   opens it and returns a 'Handle' to it.
-openDevice :: FilePath -> IO Handle
+--   opens it and returns a 'PowerMate'.
+openDevice :: FilePath -> IO PowerMate
 openDevice file = do
-  handle <- openBinaryFile file ReadWriteMode
-  hSetBuffering handle NoBuffering
-  return handle
+  rHandle <- openBinaryFile file ReadMode
+  hSetBuffering rHandle NoBuffering
+  wHandle <- openBinaryFile file WriteMode
+  hSetBuffering wHandle NoBuffering
+  return $ PowerMate { readHandle = rHandle, writeHandle = wHandle }
 
 -- | An event returned by the PowerMate USB.
 data Event = Button Bool          -- ^ True = press, False = release
@@ -123,10 +132,10 @@ eventSize = #{size struct input_event}
 -- | Block until the PowerMate USB controller generates an event, and
 --   then return that event.  (Or, sometimes just returns 'Nothing',
 --   which you can ignore.)
-readEvent :: Handle -> IO (Maybe Event)
+readEvent :: PowerMate -> IO (Maybe Event)
 readEvent handle = do
   allocaBytes eventSize $ \buf -> do
-    readsize <- hGetBuf handle buf eventSize
+    readsize <- hGetBuf (readHandle handle) buf eventSize
     -- putStrLn ("read " ++ show readsize ++ " bytes, wanted " ++ show size)
     -- XXX die if readsize < size...
     typ   <- #{peek struct input_event, type}  buf :: IO Word16
@@ -135,23 +144,23 @@ readEvent handle = do
     return $ decodeEvent (typ, code, value)
 
 -- | If multiple events are available, discard all but the last.
-readEventWithSkip :: Handle -> Maybe Event -> IO (Maybe Event)
+readEventWithSkip :: PowerMate -> Maybe Event -> IO (Maybe Event)
 readEventWithSkip handle prev = do
   event <- readEvent handle
   let actualevent = case event of
                       Nothing -> prev
                       _       -> event
-  more <- hReady handle
+  more <- hReady (readHandle handle)
   if more then readEventWithSkip handle actualevent
           else return actualevent
 
-writeEvent :: Handle -> Word16 -> Word16 -> Word32 -> IO ()
+writeEvent :: PowerMate -> Word16 -> Word16 -> Word32 -> IO ()
 writeEvent handle typ code value = do
   allocaBytes eventSize $ \buf -> do
     #{poke struct input_event, type}  buf typ
     #{poke struct input_event, code}  buf code
     #{poke struct input_event, value} buf value
-    hPutBuf handle buf eventSize
+    hPutBuf (writeHandle handle) buf eventSize
 
 encodePulseLED :: Status -> Word32
 encodePulseLED status =
@@ -180,10 +189,16 @@ showBinary word = concatMap showBit [31,30..0] where
 -}
 
 -- | Control the blue LED on the PowerMate USB.
-writeStatus :: Handle -> Status -> IO ()
+writeStatus :: PowerMate -> Status -> IO ()
 writeStatus handle status = writeEvent handle typ code value where
   typ   = #{const EV_MSC}
   code  = #{const MSC_PULSELED}
   value = encodePulseLED status
+
+-- | Close the 'PowerMate'.
+closeDevice :: PowerMate -> IO ()
+closeDevice pmate = do
+  hClose (readHandle pmate)
+  hClose (writeHandle pmate)
 
 -- vim: set ts=2 sw=2 et ft=haskell :
