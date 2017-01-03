@@ -12,7 +12,7 @@ maintainer:          Evan Martin <martine@danga.com>
 homepage:            http://neugierig.org/software/darcs/powermate/
 
 tested-with:         GHC==7.6.3
-Cabal-Version:       >= 1.2
+Cabal-Version:       >= 1.10
 build-type:          Simple
 extra-source-files:  src/PowerMate.hsc
 
@@ -25,3 +25,31 @@ Library
         ghc-prof-options:       -prof -auto-all
 
         Exposed-modules:        MPD, PowerMate
+
+executable powermate-print
+  -- .hs or .lhs file containing the Main module.
+  main-is:             powermate-print.hs
+
+  -- LANGUAGE extensions used by modules in this package.
+  -- other-extensions:
+
+  -- Other library packages from which modules are imported.
+  build-depends:       base > 3
+                     , powermate
+
+  -- Base language which the package is written in.
+  default-language:    Haskell2010
+
+executable powermate-pulse
+  -- .hs or .lhs file containing the Main module.
+  main-is:             powermate-pulse.hs
+
+  -- LANGUAGE extensions used by modules in this package.
+  -- other-extensions:
+
+  -- Other library packages from which modules are imported.
+  build-depends:       base > 3
+                     , powermate
+
+  -- Base language which the package is written in.
+  default-language:    Haskell2010
