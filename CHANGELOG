@@ -1,0 +1,25 @@
+-*- Text -*-
+
+1.0
+
+* Now works with GHC 7.2.2 - 8.0.1.
+
+* Added Eq, Ord, Show, and Read instances for Event and Status.
+
+* Added example programs powermate-print and powermate-pulse.
+
+* Added documentation.
+
+* An open PowerMate is now represented by the opaque type 'PowerMate'
+  instead of 'Handle'.  A new function 'closeDevice' exists to close
+  the opaque 'PowerMate' type.
+
+* Fixed a bug where the PowerMate would get confused and start
+  dropping button presses if you set the LED.
+
+* Removed extraneous printing to stdout.
+
+
+0.1  @  Sun Feb 24 16:34:18 UTC 2008
+
+* Initial release.
