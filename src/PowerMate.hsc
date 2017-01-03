@@ -95,10 +95,10 @@ searchForDevice = do
     (x:_) -> Just x
   where basedir = "/dev/input"
         deviceIsGood path = do
-          putStr (path ++ ": ")
-          hFlush stdout
+          -- putStr (path ++ ": ")
+          -- hFlush stdout
           name <- getUSBName path
-          putStrLn name
+          -- putStrLn name
           return $ nameIsGood name
         nameIsGood "Griffin PowerMate" = True
         nameIsGood _                   = False
