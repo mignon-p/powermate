@@ -18,13 +18,15 @@ extra-source-files:  src/PowerMate.hsc
 
 Library
         build-depends:          base>3, unix, directory, network
-        extensions:             ForeignFunctionInterface
-        hs-source-dirs:         src, .
+        other-extensions:       ForeignFunctionInterface
+        hs-source-dirs:         src
 
         ghc-options:            -O2 -Wall -optl-Wl,-s
         ghc-prof-options:       -prof -auto-all
 
         Exposed-modules:        MPD, PowerMate
+
+        default-language:       Haskell2010
 
 executable powermate-print
   -- .hs or .lhs file containing the Main module.
