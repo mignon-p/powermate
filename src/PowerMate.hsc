@@ -37,7 +37,8 @@ foreign import ccall "sys/ioctl.h ioctl" ioctlChar ::
 data Status = Status {
   brightness, pulse_speed, pulse_mode :: Int,
   pulse_asleep, pulse_awake :: Bool
-}
+} deriving (Eq, Ord, Show, Read)
+
 statusInit = Status 0 0 0 False False
 
 ioctlName :: Fd -> IO String
@@ -78,8 +79,8 @@ openDevice file = do
   return handle
 
 data Event = Button Bool | Rotate Int | StatusChange Status
---instance Show Event where
---  show (typ, code, value) =
+           deriving (Eq, Ord, Show, Read)
+
 decodeEvent :: (Word16, Word16, Word32) -> Maybe Event
 decodeEvent (#{const EV_KEY}, _, value) = Just $ Button (value == 1)
 decodeEvent (#{const EV_REL}, _, value) = Just $ Rotate (fromIntegral value)
