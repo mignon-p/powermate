@@ -4,12 +4,15 @@ synopsis:            PowerMate bindings
 description:         PowerMate bindings for Haskell,
                      MPD bindings (barely) for Haskell.
 Stability:           Experimental
-category:            System
+category:            System, Hardware
 license:             BSD3
 license-file:        LICENSE
 author:              Evan Martin
-maintainer:          Evan Martin <martine@danga.com>
-homepage:            http://neugierig.org/software/darcs/powermate/
+maintainer:          Patrick Pelletier <code@funwithsoftware.org>
+homepage:            https://github.com/ppelleti/powermate
+bug-reports:         https://github.com/ppelleti/powermate/issues
+copyright:           (C) 2006 Evan Martin,
+                     (C) 2017 Patrick Pelletier
 
 tested-with:         GHC==7.2.2
                    , GHC==7.4.2
