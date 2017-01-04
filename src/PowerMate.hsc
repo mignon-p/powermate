@@ -40,7 +40,7 @@ import System.Posix.IO
 -- and then System.IO for everything else.
 import System.IO
 import Data.List (isPrefixOf)
-import Control.Monad (filterM)
+import Control.Monad (filterM, when)
 import Control.Exception (bracket)
 import System.Directory (getDirectoryContents)
 import Foreign.C.String (withCAString, peekCString)
@@ -144,9 +144,10 @@ readEvent pmate = do
 readEvent' :: PowerMate -> IO (Maybe Event)
 readEvent' handle = do
   allocaBytes eventSize $ \buf -> do
-    readsize <- hGetBuf (readHandle handle) buf eventSize
+    let rHandle = readHandle handle
+    readsize <- hGetBuf rHandle buf eventSize
     -- putStrLn ("read " ++ show readsize ++ " bytes, wanted " ++ show size)
-    -- XXX die if readsize < size...
+    when (readsize /= eventSize) $ fail $ "unexpected EOF on " ++ (show rHandle)
     typ   <- #{peek struct input_event, type}  buf :: IO Word16
     code  <- #{peek struct input_event, code}  buf :: IO Word16
     value <- #{peek struct input_event, value} buf :: IO Word32
