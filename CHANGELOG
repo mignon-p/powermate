@@ -19,6 +19,9 @@
 
 * Removed extraneous printing to stdout.
 
+* Removed getUSBName and readEventWithSkip; I didn't see the utility
+  in these functions.
+
 
 0.1  @  Sun Feb 24 16:34:18 UTC 2008
 

@@ -18,9 +18,8 @@ pulse speed, and pulse waveform of the built-in blue LED.
 
 module PowerMate (
   PowerMate,
-  getUSBName,
   searchForDevice, openDevice,
-  readEvent, readEventWithSkip,
+  readEvent,
   Event(..),
 
   Status(..), statusInit,
@@ -143,6 +142,7 @@ readEvent handle = do
     value <- #{peek struct input_event, value} buf :: IO Word32
     return $ decodeEvent (typ, code, value)
 
+{-
 -- | If multiple events are available, discard all but the last.
 readEventWithSkip :: PowerMate -> Maybe Event -> IO (Maybe Event)
 readEventWithSkip handle prev = do
@@ -153,6 +153,7 @@ readEventWithSkip handle prev = do
   more <- hReady (readHandle handle)
   if more then readEventWithSkip handle actualevent
           else return actualevent
+-}
 
 writeEvent :: PowerMate -> Word16 -> Word16 -> Word32 -> IO ()
 writeEvent handle typ code value = do
