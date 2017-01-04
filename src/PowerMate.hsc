@@ -17,12 +17,16 @@ pulse speed, and pulse waveform of the built-in blue LED.
 -}
 
 module PowerMate (
+  -- * Types
   PowerMate,
-  searchForDevice, openDevice,
-  readEvent,
   Event(..),
+  Status(..),
+  statusInit,
 
-  Status(..), statusInit,
+  -- * Using the PowerMate
+  searchForDevice,
+  openDevice,
+  readEvent,
   writeStatus,
   closeDevice
 ) where
