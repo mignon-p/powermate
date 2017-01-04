@@ -22,6 +22,8 @@
 * Removed getUSBName and readEventWithSkip; I didn't see the utility
   in these functions.
 
+* readEvent no longer returns a Maybe.  There was no meaning to
+  'Nothing' and it just had to be ignored.
 
 0.1  @  Sun Feb 24 16:34:18 UTC 2008
 

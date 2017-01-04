@@ -129,10 +129,16 @@ eventSize :: Int
 eventSize = #{size struct input_event}
 
 -- | Block until the PowerMate USB controller generates an event, and
---   then return that event.  (Or, sometimes just returns 'Nothing',
---   which you can ignore.)
-readEvent :: PowerMate -> IO (Maybe Event)
-readEvent handle = do
+--   then return that event.
+readEvent :: PowerMate -> IO Event
+readEvent pmate = do
+  mby <- readEvent' pmate
+  case mby of
+    Nothing -> readEvent pmate
+    (Just ev) -> return ev
+
+readEvent' :: PowerMate -> IO (Maybe Event)
+readEvent' handle = do
   allocaBytes eventSize $ \buf -> do
     readsize <- hGetBuf (readHandle handle) buf eventSize
     -- putStrLn ("read " ++ show readsize ++ " bytes, wanted " ++ show size)

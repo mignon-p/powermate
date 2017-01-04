@@ -12,13 +12,13 @@ updateLed h speed mode = writeStatus h status
                  , pulse_awake = True
                  }
 
-handleEvent :: PowerMate -> Maybe Event -> Int -> Int -> IO (Int, Int)
-handleEvent h (Just (Button True)) speed mode = do
+handleEvent :: PowerMate -> Event -> Int -> Int -> IO (Int, Int)
+handleEvent h (Button True) speed mode = do
   let mode' = (mode + 1) `mod` 3
   putStrLn $ "mode " ++ show mode'
   updateLed h speed mode'
   return (speed, mode')
-handleEvent h (Just (Rotate r)) speed mode = do
+handleEvent h (Rotate r) speed mode = do
   let speed' = max 0 $ min 510 $ speed + r
   putStrLn $ "speed " ++ show speed'
   updateLed h speed' mode
