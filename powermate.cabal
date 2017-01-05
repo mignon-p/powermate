@@ -37,8 +37,8 @@ source-repository head
 
 Library
         build-depends:          base >= 4.4 && < 5
-                              , unix
-                              , directory
+                              , unix >= 2.5 && < 2.8
+                              , directory >= 1.1.0.1 && < 1.4
         other-extensions:       ForeignFunctionInterface
         hs-source-dirs:         src
 
