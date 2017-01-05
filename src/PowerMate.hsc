@@ -5,7 +5,7 @@ Module      : PowerMate
 Description : PowerMate bindings for Haskell.
 Copyright   : (C) 2006 Evan Martin <martine@danga.com>,
               (C) 2017 Patrick Pelletier <code@funwithsoftware.org>
-License     : BSD3
+License     : MIT
 Maintainer  : Patrick Pelletier <code@funwithsoftware.org>
 Stability   : experimental
 Portability : Linux

@@ -5,7 +5,7 @@ description:         PowerMate bindings for Haskell,
                      MPD bindings (barely) for Haskell.
 Stability:           Experimental
 category:            System, Hardware
-license:             BSD3
+license:             MIT
 license-file:        LICENSE
 author:              Evan Martin
 maintainer:          Patrick Pelletier <code@funwithsoftware.org>
