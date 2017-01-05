@@ -25,6 +25,10 @@
 * readEvent no longer returns a Maybe.  There was no meaning to
   'Nothing' and it just had to be ignored.
 
+* Removed the MPD module.  It wasn't directly related to the PowerMate
+  functionality, and the "libmpd" package seems to be an alternative
+  which is more complete and better maintained.
+
 0.1  @  Sun Feb 24 16:34:18 UTC 2008
 
 * Initial release.

@@ -1,8 +1,12 @@
 name:                powermate
 version:             1.0
-synopsis:            PowerMate bindings
-description:         PowerMate bindings for Haskell,
-                     MPD bindings (barely) for Haskell.
+synopsis:            bindings for Griffin PowerMate USB
+description:
+        This library is for interfacing the Griffin PowerMate USB (a
+        big silver knob you can turn and click) with Haskell on Linux.
+        Besides reading events from the PowerMate, you can also
+        control the brightness, pulse speed, and pulse waveform of the
+        built-in LED.
 Stability:           Experimental
 category:            System, Hardware
 license:             MIT
@@ -35,13 +39,12 @@ Library
         build-depends:          base >= 4.4 && < 5
                               , unix
                               , directory
-                              , network
         other-extensions:       ForeignFunctionInterface
         hs-source-dirs:         src
 
         ghc-options:            -Wall
 
-        Exposed-modules:        MPD, PowerMate
+        Exposed-modules:        PowerMate
 
         default-language:       Haskell2010
 
