@@ -48,6 +48,9 @@ Library
 
   default-language:    Haskell2010
 
+  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
+  build-tools:         hsc2hs
+
 executable powermate-print
   -- .hs or .lhs file containing the Main module.
   main-is:             powermate-print.hs
